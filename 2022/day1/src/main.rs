@@ -13,7 +13,6 @@ fn main() {
                     let n: i32 = num.parse().unwrap();
                     n
                 })
-                .into_iter()
                 .fold(0, |acc, i| acc + i)
         })
         .collect::<Vec<i32>>();
