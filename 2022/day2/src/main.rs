@@ -45,25 +45,18 @@ fn main() {
         .lines()
         .map(|game| {
             let g = game.split_once(' ').unwrap();
-
-            let mut ind: (Player, Status) = (Player { play: Rps::Rock }, Status::Draw);
-
-            if g.0 == "A" {
-                ind.0 = Player { play: Rps::Rock };
-            } else if g.0 == "B" {
-                ind.0 = Player { play: Rps::Paper };
-            } else {
-                ind.0 = Player { play: Rps::Scisor };
-            }
-
-            if g.1 == "X" {
-                ind.1 = Status::Lose;
-            } else if g.1 == "Y" {
-                ind.1 = Status::Draw;
-            } else {
-                ind.1 = Status::Win;
-            }
-            ind
+            (
+                match g.0 {
+                    "A" => Player { play: Rps::Rock },
+                    "B" => Player { play: Rps::Paper },
+                    _ => Player { play: Rps::Scisor },
+                },
+                match g.1 {
+                    "X" => Status::Lose,
+                    "Y" => Status::Draw,
+                    _ => Status::Win,
+                },
+            )
         })
         .collect();
 
