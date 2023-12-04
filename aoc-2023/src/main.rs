@@ -14,5 +14,6 @@ fn main() {
 
     let input = fs::read_to_string("./day2.txt").unwrap();
 
-    println!("{}", day2::part_1(input));
+    println!("{}", day2::part_1(input.clone()));
+    println!("{}", day2::part_2(input));
 }
