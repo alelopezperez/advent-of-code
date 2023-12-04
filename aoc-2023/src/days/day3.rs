@@ -7,7 +7,8 @@ impl Point {
             && (j < (self.pos.1 as i32 + self.len as i32))
     }
 }
-#[derive(Debug, Eq, PartialEq, Hash, Clone)]
+
+#[derive(Debug, Eq, PartialEq, Clone, Hash)]
 struct Point {
     val: u32,
     pos: (usize, usize),
