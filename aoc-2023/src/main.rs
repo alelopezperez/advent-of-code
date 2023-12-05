@@ -5,6 +5,8 @@ use days::day1;
 use days::day2;
 use days::day3;
 use days::day4;
+use days::day5;
+use tailcall::tailcall;
 
 fn main() {
     // let input = fs::read_to_string("./day1.txt").unwrap();
@@ -23,8 +25,17 @@ fn main() {
     // println!("{}", day3::part_1(input.clone()));
     // println!("{}", day3::part_2(input));
 
-    let input = fs::read_to_string("./day4.txt").unwrap();
+    // let input = fs::read_to_string("./day4.txt").unwrap();
     // println!("{}", day4::part_1(input.clone()));
-    println!("anser {}", day4::part_2(input.clone()));
-    //println!("anser {}", day4::part_2_normal(input.clone()));
+    // println!("anser {}", day4::part_2(input.clone()));
+    // println!("anser {}", day4::part_2_normal(input.clone()));
+
+    let input = fs::read_to_string("./day5.txt").unwrap();
+    //day5::part_1(input.clone());
+    day5::part_2(input);
+}
+
+#[tailcall] // <- This is great!!!! it loops indefently instead of overflowing
+fn infinite() {
+    infinite();
 }
