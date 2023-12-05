@@ -122,6 +122,17 @@ fn part_2_rec(games: &Vec<Card>, i: usize, accum: u32, matches: &Vec<u32>) -> u3
     }
 }
 
+fn part_2_rec_tail(games: &Vec<Card>, i: usize, accum: u32, matches: &Vec<u32>, curr: u32) -> u32 {
+    if let Some(_) = games.get(i) {
+        let wins = matches[i];
+
+        part_2_rec_tail(games, i + 1, accum + curr, matches, curr + wins);
+        accum
+    } else {
+        accum
+    }
+}
+
 pub fn part_2_normal(input: String) -> u32 {
     let games = input
         .lines()
