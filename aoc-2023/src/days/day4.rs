@@ -1,3 +1,5 @@
+use tailcall::tailcall;
+
 #[derive(Debug)]
 struct Card {
     _id: u32,
@@ -106,28 +108,16 @@ pub fn part_2(input: String) -> u32 {
         })
         .collect::<Vec<_>>();
 
-    (0..games.len())
-        .map(|i| part_2_rec(&games, i, 0, &matches))
-        .sum()
+    (0..matches.len()).map(|i| part_2_rec(i, 0, &matches)).sum()
 }
-fn part_2_rec(games: &Vec<Card>, i: usize, accum: u32, matches: &Vec<u32>) -> u32 {
-    if let Some(_) = games.get(i) {
+#[tailcall]
+fn part_2_rec(i: usize, accum: u32, matches: &Vec<u32>) -> u32 {
+    if let Some(_) = matches.get(i) {
         let amm = matches[i];
 
         (1..=amm as usize)
-            .map(|j| part_2_rec(games, i + j, accum + amm, matches))
+            .map(|j| part_2_rec(i + j, accum + amm, matches))
             .fold(1, |total, x| total + x)
-    } else {
-        accum
-    }
-}
-
-fn part_2_rec_tail(games: &Vec<Card>, i: usize, accum: u32, matches: &Vec<u32>, curr: u32) -> u32 {
-    if let Some(_) = games.get(i) {
-        let wins = matches[i];
-
-        part_2_rec_tail(games, i + 1, accum + curr, matches, curr + wins);
-        accum
     } else {
         accum
     }
