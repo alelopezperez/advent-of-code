@@ -24,6 +24,7 @@ fn main() {
     // println!("{}", day3::part_2(input));
 
     let input = fs::read_to_string("./day4.txt").unwrap();
-    // println!("{}", day4::part_1(input.clone()));
+    println!("{}", day4::part_1(input.clone()));
+    println!("anser {}", day4::part_2(input.clone()));
     println!("anser {}", day4::part_2_normal(input.clone()));
 }

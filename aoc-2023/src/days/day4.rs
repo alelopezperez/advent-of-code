@@ -88,24 +88,34 @@ pub fn part_2(input: String) -> u32 {
         })
         .collect::<Vec<_>>();
 
-    (0..games.len()).map(|i| part_2_rec(&games, i, 0)).sum()
+    let matches = games
+        .iter()
+        .map(|card| {
+            let amm = card
+                .left
+                .iter()
+                .map(|x| {
+                    if let Some(_) = card.right.iter().find(|y| *y == x) {
+                        1
+                    } else {
+                        0
+                    }
+                })
+                .sum::<u32>();
+            amm
+        })
+        .collect::<Vec<_>>();
+
+    (0..games.len())
+        .map(|i| part_2_rec(&games, i, 0, &matches))
+        .sum()
 }
-fn part_2_rec(games: &Vec<Card>, i: usize, accum: u32) -> u32 {
+fn part_2_rec(games: &Vec<Card>, i: usize, accum: u32, matches: &Vec<u32>) -> u32 {
     if let Some(card) = games.get(i) {
-        let amm = card
-            .left
-            .iter()
-            .map(|x| {
-                if let Some(_) = card.right.iter().find(|y| *y == x) {
-                    1
-                } else {
-                    0
-                }
-            })
-            .sum::<u32>();
+        let amm = matches[i];
 
         (1..=amm as usize)
-            .map(|j| part_2_rec(games, i + j, accum + amm))
+            .map(|j| part_2_rec(games, i + j, accum + amm, matches))
             .fold(1, |total, x| total + x)
     } else {
         accum
@@ -141,13 +151,9 @@ pub fn part_2_normal(input: String) -> u32 {
         })
         .collect::<Vec<_>>();
 
-    let total = 0;
-
     let mut copy = vec![1; games.len()];
 
-    println!("{}", copy.len());
-
-    for (i, card) in games.iter().enumerate() {
+    games.iter().enumerate().for_each(|(i, card)| {
         let amm = card
             .left
             .iter()
@@ -163,7 +169,7 @@ pub fn part_2_normal(input: String) -> u32 {
         for extra in 1..=amm {
             copy[i + extra as usize] += copy[i];
         }
-    }
+    });
 
     copy.iter().sum()
 }
