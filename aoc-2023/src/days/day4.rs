@@ -1,6 +1,6 @@
 #[derive(Debug)]
 struct Card {
-    id: u32,
+    _id: u32,
     left: Vec<i32>,
     right: Vec<i32>,
 }
@@ -26,7 +26,7 @@ pub fn part_1(input: String) -> i32 {
                 .collect::<Vec<_>>();
 
             Card {
-                id: id,
+                _id: id,
                 left: left,
                 right: right,
             }
@@ -81,7 +81,7 @@ pub fn part_2(input: String) -> u32 {
                 .collect::<Vec<_>>();
 
             Card {
-                id: id,
+                _id: id,
                 left: left,
                 right: right,
             }
@@ -111,7 +111,7 @@ pub fn part_2(input: String) -> u32 {
         .sum()
 }
 fn part_2_rec(games: &Vec<Card>, i: usize, accum: u32, matches: &Vec<u32>) -> u32 {
-    if let Some(card) = games.get(i) {
+    if let Some(_) = games.get(i) {
         let amm = matches[i];
 
         (1..=amm as usize)
@@ -144,7 +144,7 @@ pub fn part_2_normal(input: String) -> u32 {
                 .collect::<Vec<_>>();
 
             Card {
-                id: id,
+                _id: id,
                 left: left,
                 right: right,
             }
