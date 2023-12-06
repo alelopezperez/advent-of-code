@@ -64,9 +64,23 @@ pub fn part_2_fast(input: String) {
         .chunks(2)
         .map(|x| (x[0]..=x[0] + x[1] - 1))
         .collect::<Vec<_>>();
+
+    println!(
+        "FINAL{:?}",
+        find_lowest_range(Vec::from([seeds[0].clone()]), almanac.clone())
+    );
 }
 
 fn find_lowest_range(seed: Vec<RangeInclusive<u32>>, almanac: Vec<Vec<(u32, u32, u32)>>) {}
+
+fn find_lowest_range_rec(seed: Vec<RangeInclusive<u32>>, almanac: Vec<Vec<(u32, u32, u32)>>) {
+    for i in 0..almanac.len() {
+        find_lowest_range_rec_helper(seed, almanac[i].clone());
+    }
+}
+
+fn find_lowest_range_rec_helper(seed: Vec<RangeInclusive<u32>>, almanac: Vec<(u32, u32, u32)>) {}
+
 fn find_lowest(seeds: Vec<u32>, almanac: Vec<Vec<(u32, u32, u32)>>) -> u32 {
     let mut positions = u32::MAX;
 

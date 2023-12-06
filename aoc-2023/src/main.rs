@@ -35,7 +35,7 @@ fn main() {
     // day5::part_1(input.clone());
     // day5::part_2_fast(input);
 
-    day6::part_1()
+    day6::part_1();
 }
 
 #[tailcall] // <- This is great!!!! it loops indefently instead of overflowing
