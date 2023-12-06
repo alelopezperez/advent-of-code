@@ -6,6 +6,7 @@ use days::day2;
 use days::day3;
 use days::day4;
 use days::day5;
+use days::day6;
 use tailcall::tailcall;
 
 fn main() {
@@ -30,9 +31,11 @@ fn main() {
     // println!("anser {}", day4::part_2(input.clone()));
     // println!("anser {}", day4::part_2_normal(input.clone()));
 
-    let input = fs::read_to_string("./day5.txt").unwrap();
-    //day5::part_1(input.clone());
-    day5::part_2(input);
+    // let input = fs::read_to_string("./day5.txt").unwrap();
+    // day5::part_1(input.clone());
+    // day5::part_2_fast(input);
+
+    day6::part_1()
 }
 
 #[tailcall] // <- This is great!!!! it loops indefently instead of overflowing

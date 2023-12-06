@@ -1,4 +1,9 @@
-use std::cmp::min;
+use std::{
+    borrow::BorrowMut,
+    cell::RefCell,
+    cmp::{max, min},
+    ops::RangeInclusive,
+};
 
 pub fn parse_data(lines: String) -> (Vec<u32>, Vec<Vec<(u32, u32, u32)>>) {
     let (seeds, data) = lines.split_once("\n\n").unwrap();
@@ -15,7 +20,8 @@ pub fn parse_data(lines: String) -> (Vec<u32>, Vec<Vec<(u32, u32, u32)>>) {
         .split("\n\n")
         .map(|x| x.split_once(':').unwrap().1.trim())
         .map(|x| {
-            x.split('\n')
+            let mut parts = x
+                .split('\n')
                 .map(|x| {
                     let mut it = x.split_whitespace();
                     (
@@ -24,7 +30,10 @@ pub fn parse_data(lines: String) -> (Vec<u32>, Vec<Vec<(u32, u32, u32)>>) {
                         it.next().unwrap().parse::<u32>().unwrap(),
                     )
                 })
-                .collect::<Vec<_>>()
+                .collect::<Vec<_>>();
+
+            parts.sort_by(|a, b| a.1.cmp(&b.1));
+            parts
         })
         .collect::<Vec<_>>();
 
@@ -48,6 +57,16 @@ pub fn part_2(input: String) {
     println!("{:?}", find_lowest(seeds, almanac));
 }
 
+pub fn part_2_fast(input: String) {
+    let (seeds, almanac) = parse_data(input);
+
+    let seeds = seeds
+        .chunks(2)
+        .map(|x| (x[0]..=x[0] + x[1] - 1))
+        .collect::<Vec<_>>();
+}
+
+fn find_lowest_range(seed: Vec<RangeInclusive<u32>>, almanac: Vec<Vec<(u32, u32, u32)>>) {}
 fn find_lowest(seeds: Vec<u32>, almanac: Vec<Vec<(u32, u32, u32)>>) -> u32 {
     let mut positions = u32::MAX;
 
