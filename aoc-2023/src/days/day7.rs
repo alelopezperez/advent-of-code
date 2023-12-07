@@ -5,7 +5,7 @@ enum Card {
     A = 15,
     K = 14,
     Q = 13,
-    J = 12,
+    J = 1, // change j to 12
     T = 11,
     NINE = 10,
     EIGT = 9,
@@ -20,7 +20,7 @@ enum Card {
 
 impl HandType {
     fn calculate_type(hand: &[Card; 5]) -> HandType {
-        let count = hand
+        let mut count = hand
             .iter()
             .fold(Vec::<(&Card, u32)>::new(), |mut accum, curr| {
                 if accum.is_empty() {
@@ -34,6 +34,31 @@ impl HandType {
                 }
                 accum
             });
+        //NEW LOGIC
+        let jokers = count
+            .iter()
+            .cloned()
+            .enumerate()
+            .find(|(_i, x)| *x.0 == Card::J);
+
+        match jokers {
+            Some(jokes) => {
+                if count.len() > 1 {
+                    count.remove(jokes.0);
+
+                    let max = count
+                        .iter()
+                        .cloned()
+                        .enumerate()
+                        .max_by(|a, b| a.1 .1.cmp(&b.1 .1))
+                        .unwrap();
+
+                    count[max.0].1 += jokes.1 .1;
+                }
+            }
+            None => {}
+        }
+        //NEW LOGIC
 
         if count.len() == 1 {
             HandType::FiveOKind
@@ -57,7 +82,7 @@ impl HandType {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
 enum HandType {
     FiveOKind = 7,
     FourOKind = 6,
@@ -92,6 +117,18 @@ impl Hand {
             .try_into()
             .unwrap();
         let hand_type = HandType::calculate_type(&card);
+
+        let jokers = card.iter().filter(|x| **x == Card::J).count();
+        let new_hand = match hand_type.clone() as usize + jokers {
+            1 => HandType::HighCard,
+            2 => HandType::TwoPair,
+            3 => HandType::TwoPair,
+            4 => HandType::ThreeOKind,
+            5 => HandType::FullHouse,
+            6 => HandType::FourOKind,
+            _ => HandType::FiveOKind,
+        };
+
         Self {
             hand: card,
             value: hand_type,
@@ -115,6 +152,29 @@ fn parse_1(input: String) -> Vec<(Hand, u32)> {
         .collect::<Vec<_>>()
 }
 pub fn part_1(input: String) {
+    let mut game = parse_1(input);
+    game.sort_by(|b, a| {
+        let compare = b.0.value.cmp(&a.0.value);
+
+        if compare == Ordering::Equal {
+            b.0.hand
+                .iter()
+                .zip(a.0.hand.iter())
+                .map(|(x, y)| x.cmp(&y))
+                .find(|x| x != &Ordering::Equal)
+                .unwrap()
+        } else {
+            compare
+        }
+    });
+
+    let total = game.iter().enumerate().fold(0, |accum, (index, item)| {
+        accum + (item.1 * ((index as u32) + 1))
+    });
+    println!("{:#?}", total);
+}
+
+pub fn part_2(input: String) {
     let mut game = parse_1(input);
     game.sort_by(|b, a| {
         let compare = b.0.value.cmp(&a.0.value);
