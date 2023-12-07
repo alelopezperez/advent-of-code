@@ -132,6 +132,20 @@ enum HandType {
 }
 
 impl Hand {
+    fn sort_hands(b: &(Hand, u32), a: &(Hand, u32)) -> Ordering {
+        let compare = b.0.value.cmp(&a.0.value);
+
+        if compare == Ordering::Equal {
+            b.0.hand
+                .iter()
+                .zip(a.0.hand.iter())
+                .map(|(x, y)| x.cmp(&y))
+                .find(|x| x != &Ordering::Equal)
+                .unwrap()
+        } else {
+            compare
+        }
+    }
     fn new(hand: Vec<char>) -> Self {
         let card: [Card; 5] = hand
             .into_iter()
@@ -218,22 +232,10 @@ fn parse_2(input: String) -> Vec<(Hand, u32)> {
         })
         .collect::<Vec<_>>()
 }
+
 pub fn part_1(input: String) {
     let mut game = parse_1(input);
-    game.sort_by(|b, a| {
-        let compare = b.0.value.cmp(&a.0.value);
-
-        if compare == Ordering::Equal {
-            b.0.hand
-                .iter()
-                .zip(a.0.hand.iter())
-                .map(|(x, y)| x.cmp(&y))
-                .find(|x| x != &Ordering::Equal)
-                .unwrap()
-        } else {
-            compare
-        }
-    });
+    game.sort_by(Hand::sort_hands);
 
     let total = game.iter().enumerate().fold(0, |accum, (index, item)| {
         accum + (item.1 * ((index as u32) + 1))
@@ -243,20 +245,7 @@ pub fn part_1(input: String) {
 
 pub fn part_2(input: String) {
     let mut game = parse_2(input);
-    game.sort_by(|b, a| {
-        let compare = b.0.value.cmp(&a.0.value);
-
-        if compare == Ordering::Equal {
-            b.0.hand
-                .iter()
-                .zip(a.0.hand.iter())
-                .map(|(x, y)| x.cmp(&y))
-                .find(|x| x != &Ordering::Equal)
-                .unwrap()
-        } else {
-            compare
-        }
-    });
+    game.sort_by(Hand::sort_hands);
 
     let total = game.iter().enumerate().fold(0, |accum, (index, item)| {
         accum + (item.1 * ((index as u32) + 1))
