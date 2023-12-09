@@ -1,6 +1,6 @@
-use std::cmp::Ordering;
+use std::{clone, cmp::Ordering};
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
 enum Card {
     A = 15,
     K = 14,
@@ -79,6 +79,7 @@ impl HandType {
             .enumerate()
             .find(|(_i, x)| *x.0 == Card::JOKER);
 
+        // New Logic
         match jokers {
             Some(jokes) => {
                 if count.len() > 1 {

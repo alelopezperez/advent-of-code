@@ -8,6 +8,7 @@ use days::day4;
 use days::day5;
 use days::day6;
 use days::day7;
+use days::day8;
 
 use tailcall::tailcall;
 
@@ -39,9 +40,14 @@ fn main() {
 
     // day6::part_1();
 
-    let input = fs::read_to_string("./day7.txt").unwrap();
-    day7::part_1(input.clone());
-    day7::part_2(input);
+    // let input = fs::read_to_string("./day7.txt").unwrap();
+    // day7::part_1(input.clone());
+    // day7::part_2(input);
+
+    let input = fs::read_to_string("./day8.txt").unwrap();
+    day8::part_1(input.clone());
+    day8::part_2(input);
+    let vec = vec![1, 23, 4];
 }
 
 #[tailcall] // <- This is great!!!! it loops indefently instead of overflowing
