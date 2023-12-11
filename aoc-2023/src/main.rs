@@ -50,7 +50,8 @@ fn main() {
     // day8::part_2(input);
 
     let input = fs::read_to_string("./day9.txt").unwrap();
-    day9::part_2(input.clone());
+    day9::part_1(input.clone());
+    day9::part_2(input);
 }
 
 #[tailcall] // <- This is great!!!! it loops indefently instead of overflowing

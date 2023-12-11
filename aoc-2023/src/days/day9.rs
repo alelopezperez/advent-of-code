@@ -24,6 +24,7 @@ fn predict_rec(row: Vec<i32>, accum: i32) -> i32 {
     predict_rec(row, accum)
 }
 
+#[tailcall]
 fn predict_rec_rev(row: Vec<i32>, accum: i32, flip: i8) -> i32 {
     let row = row.windows(2).map(|x| (x[1] - x[0])).collect::<Vec<_>>();
     let accum = accum - (row.first().unwrap() * (flip as i32));
