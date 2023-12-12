@@ -2,6 +2,8 @@ use std::fs;
 
 mod days;
 use days::day1;
+use days::day10;
+use days::day11;
 use days::day2;
 use days::day3;
 use days::day4;
@@ -49,9 +51,17 @@ fn main() {
     // day8::part_1(input.clone());
     // day8::part_2(input);
 
-    let input = fs::read_to_string("./day9.txt").unwrap();
-    day9::part_1(input.clone());
-    day9::part_2(input);
+    // let input = fs::read_to_string("./day9.txt").unwrap();
+    // day9::part_1(input.clone());
+    // day9::part_2(input);
+
+    // let input = fs::read_to_string("./day10.txt").unwrap();
+    // //day10::part_1(input.clone());
+    // day10::part_2(input.clone());
+
+    let input = fs::read_to_string("./day11.txt").unwrap();
+    day11::part_1(input.clone());
+    day11::part_2(input.clone());
 }
 
 #[tailcall] // <- This is great!!!! it loops indefently instead of overflowing
