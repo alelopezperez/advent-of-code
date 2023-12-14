@@ -16,6 +16,33 @@ fn parse(input: String) -> Vec<(String, Vec<u32>)> {
         .collect::<Vec<_>>()
 }
 
+fn parse2(input: String) -> Vec<(String, Vec<u32>)> {
+    input
+        .lines()
+        .map(|x| {
+            let (conf, dup) = x.split_once(' ').unwrap();
+            let conf = String::from(conf);
+            let conf = conf.clone()
+                + "?"
+                + conf.as_str()
+                + "?"
+                + conf.as_str()
+                + "?"
+                + conf.as_str()
+                + "?"
+                + conf.as_str();
+
+            let dup = dup
+                .trim()
+                .split(',')
+                .map(|x| x.parse::<u32>().unwrap())
+                .collect::<Vec<_>>();
+            let dup = dup.repeat(5);
+            (conf, dup)
+        })
+        .collect::<Vec<_>>()
+}
+
 fn check_conf(onsen: &String, dup: &Vec<u32>) -> bool {
     let spl = onsen
         .split('.')
@@ -67,84 +94,107 @@ fn find_rec(
     dmg_count: usize,
     dmg_list: &Vec<u32>,
     index: usize,
-    cache: &mut HashMap<(String, Vec<u32>), usize>,
+    cache: &mut HashMap<(String, usize, usize), usize>,
 ) -> usize {
     if index >= onesen.len() {
         if list.len() == 1 {
             if *list.first().unwrap() as usize == dmg_count {
-                cache.insert((word.clone(), list.clone()), 1);
+                cache.insert((word.clone(), list.len(), dmg_count), 1);
                 return 1;
             } else {
-                cache.insert((word.clone(), list.clone()), 0);
+                cache.insert((word.clone(), list.len(), dmg_count), 0);
                 return 0;
             }
-        } else if list.is_empty() {
-            cache.insert((word.clone(), list.clone()), 1);
+        } else if list.is_empty() && dmg_count == 0 {
+            cache.insert((word.clone(), list.len(), dmg_count), 1);
             return 1;
         }
 
-        cache.insert((word.clone(), list.clone()), 0);
+        cache.insert((word.clone(), list.len(), dmg_count), 0);
         return 0;
     }
 
     if list.is_empty() {
-        let c = onesen.chars().skip(index + 1).filter(|x| *x == '#').count();
+        let c = onesen.chars().skip(index).filter(|x| *x == '#').count();
         if c > 0 {
-            cache.insert((word.clone(), list.clone()), 0);
+            cache.insert((word.clone(), list.len(), dmg_count), 0);
             return 0;
         }
         if dmg_count > 0 {
-            cache.insert((word.clone(), list.clone()), 0);
+            cache.insert((word.clone(), list.len(), dmg_count), 0);
             return 0;
         }
-        cache.insert((word.clone(), list.clone()), 1);
+        cache.insert((word.clone(), list.len(), dmg_count), 1);
         return 1;
     }
 
     if dmg_count > *list.first().unwrap() as usize {
-        cache.insert((word.clone(), list.clone()), 0);
+        cache.insert((word.clone(), list.len(), dmg_count), 0);
         return 0;
     }
 
-    match cache.get(&(word.clone(), list.clone())) {
-        Some(ammount) => *ammount,
+    match cache.get(&(word.clone(), list.len(), dmg_count)) {
+        Some(ammount) => {
+            println!("g");
+            *ammount
+        }
 
         None => {
             let letter = onesen.get(index..index + 1).unwrap();
             match letter {
                 "." => {
                     let new_word = word.clone() + letter;
-
+                    let mut t = 0;
                     if dmg_count == 0 {
                         let new_list = list.clone();
 
-                        let ans = find_rec(
-                            onesen,
-                            new_word.clone(),
-                            new_list,
-                            dmg_count,
-                            dmg_list,
-                            index + 1,
-                            cache,
-                        );
-                        cache.insert((new_word.clone(), list.clone()), ans.clone());
-                        ans
-                    } else if dmg_count == *list.first().unwrap() as usize {
-                        let new_list = list[1..].to_vec();
+                        if let Some(ca) = cache.get(&(new_word.clone(), new_list.len(), dmg_count))
+                        {
+                            println!("f");
+
+                            return *ca;
+                        }
 
                         let ans = find_rec(
                             onesen,
                             new_word.clone(),
-                            new_list,
+                            new_list.clone(),
                             0,
                             dmg_list,
                             index + 1,
                             cache,
                         );
-                        cache.insert((new_word.clone(), list.clone()), ans.clone());
-                        ans
+                        cache.insert((new_word.clone(), new_list.len(), dmg_count), ans.clone());
+                        t += ans;
+                        return ans;
+                    }
+                    if dmg_count == *list.first().unwrap() as usize {
+                        let new_list = list[1..].to_vec();
+                        if let Some(ca) = cache.get(&(new_word.clone(), new_list.len(), 0)) {
+                            println!("d");
+
+                            return *ca;
+                        }
+
+                        let ans = find_rec(
+                            onesen,
+                            new_word.clone(),
+                            new_list.clone(),
+                            0,
+                            dmg_list,
+                            index + 1,
+                            cache,
+                        );
+                        t += ans;
+                        cache.insert((new_word.clone(), new_list.len(), 0), t);
+                        t
                     } else {
-                        cache.insert((new_word.clone(), list.clone()), 0);
+                        if let Some(ca) = cache.get(&(new_word.clone(), list.len(), dmg_count)) {
+                            println!("a");
+
+                            return *ca;
+                        }
+                        cache.insert((new_word.clone(), list.len(), dmg_count), 0);
                         0
                     }
                 }
@@ -155,63 +205,100 @@ fn find_rec(
                     let ans = find_rec(
                         onesen,
                         new_word.clone(),
-                        new_list,
+                        new_list.clone(),
                         dmg_count + 1,
                         dmg_list,
                         index + 1,
                         cache,
                     );
-                    cache.insert((new_word.clone(), list.clone()), ans.clone());
+                    if let Some(ca) = cache.get(&(new_word.clone(), new_list.len(), dmg_count + 1))
+                    {
+                        // println!("p");
+
+                        return *ca;
+                    }
+                    cache.insert(
+                        (new_word.clone(), new_list.len(), dmg_count + 1),
+                        ans.clone(),
+                    );
                     ans
                 }
                 "?" => {
                     let new_word = word.clone() + "#";
                     let new_list = list.clone();
 
-                    let one = find_rec(
-                        onesen,
-                        new_word,
-                        new_list,
-                        dmg_count + 1,
-                        dmg_list,
-                        index + 1,
-                        cache,
-                    );
+                    let one = {
+                        if let Some(ca) =
+                            cache.get(&(new_word.clone(), new_list.len(), dmg_count + 1))
+                        {
+                            println!("asd");
+
+                            return *ca;
+                        }
+                        let ans = find_rec(
+                            onesen,
+                            new_word.clone(),
+                            new_list.clone(),
+                            dmg_count + 1,
+                            dmg_list,
+                            index + 1,
+                            cache,
+                        );
+                        cache.insert((new_word.clone(), new_list.len(), dmg_count + 1), ans);
+                        ans
+                    };
 
                     let new_word = word.clone() + ".";
                     let two = {
                         if dmg_count == 0 {
                             let new_list = list.clone();
 
+                            if let Some(ca) =
+                                cache.get(&(new_word.clone(), new_list.len(), dmg_count + 1))
+                            {
+                                println!("x");
+
+                                return *ca;
+                            }
+
                             let ans = find_rec(
                                 onesen,
                                 new_word.clone(),
-                                new_list,
+                                new_list.clone(),
                                 dmg_count,
                                 dmg_list,
                                 index + 1,
                                 cache,
                             );
+                            cache.insert((new_word.clone(), new_list.len(), dmg_count), ans);
                             ans
                         } else if dmg_count == *list.first().unwrap() as usize {
                             let new_list = list[1..].to_vec();
 
+                            if let Some(ca) =
+                                cache.get(&(new_word.clone(), new_list.len(), dmg_count + 1))
+                            {
+                                println!("n");
+
+                                return *ca;
+                            }
                             let ans = find_rec(
                                 onesen,
                                 new_word.clone(),
-                                new_list,
+                                new_list.clone(),
                                 0,
                                 dmg_list,
                                 index + 1,
                                 cache,
                             );
+                            cache.insert((new_word.clone(), new_list.len(), 0), ans);
                             ans
                         } else {
                             0
                         }
                     };
 
-                    cache.insert((new_word.clone(), list.clone()), one + two);
+                    cache.insert((word.clone(), list.len(), dmg_count), one + two);
 
                     one + two
                 }
@@ -222,35 +309,29 @@ fn find_rec(
 }
 
 pub fn part_1(input: String) {
-    let data = parse(input);
-
-    // let ans = data
-    //     .iter()
-    //     .map(|(onsen, dup)| {
-    //         let mut ans = Vec::new();
-    //         let mut on = onsen.clone();
-    //         find_combinations(&mut on, dup, 0, &mut ans);
-    //         ans.len()
-    //     })
-    //     .sum::<usize>();
-
-    // println!("{ans}");
-
-    // let mut cache = HashMap::new();
-    // let ans = find_rec(
-    //     &data[0].0,
-    //     "".to_string(),
-    //     data[0].1.clone(),
-    //     0,
-    //     &data[0].1,
-    //     0,
-    //     &mut cache,
-    // );
+    let data = parse2(input);
 
     let ans = data
         .iter()
         .map(|(onsen, list)| {
-            let mut cache: HashMap<(String, Vec<u32>), usize> = HashMap::new();
+            let mut cache = HashMap::new();
+
+            let an = find_rec(onsen, "".to_string(), list.clone(), 0, list, 0, &mut cache);
+            println!("{}", cache.len());
+            an
+        })
+        .sum::<usize>();
+    println!("{ans}");
+    //find_combinations(&mut "?###????????".to_string(), &vec![3, 2, 1], 0, &mut ans);
+}
+
+pub fn part_2(input: String) {
+    let data = parse(input);
+
+    let ans = data
+        .iter()
+        .map(|(onsen, list)| {
+            let mut cache = HashMap::new();
 
             find_rec(onsen, "".to_string(), list.clone(), 0, list, 0, &mut cache)
         })

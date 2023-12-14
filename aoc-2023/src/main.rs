@@ -5,6 +5,7 @@ use days::day1;
 use days::day10;
 use days::day11;
 use days::day12;
+use days::day13;
 use days::day2;
 use days::day3;
 use days::day4;
@@ -64,8 +65,13 @@ fn main() {
     // day11::part_1(input.clone());
     // day11::part_2(input.clone());
 
-    let input = fs::read_to_string("./day12.txt").unwrap();
-    day12::part_1(input.clone());
+    // let input = fs::read_to_string("./day12.txt").unwrap();
+    // day12::part_1(input.clone());
+
+    let input = fs::read_to_string("./day13.txt").unwrap();
+
+    day13::part_1(input.clone());
+    day13::part_2(input.clone());
 }
 
 #[tailcall] // <- This is great!!!! it loops indefently instead of overflowing
