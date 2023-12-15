@@ -142,8 +142,6 @@ pub fn part_2(input: String) {
         count += 1;
     }
 
-    println!("mod {} {}", count, set.len());
-
     let rem = (1000000000 - count - 1) % (count - (set.get(&dish).unwrap()));
 
     for _ in 0..rem {
