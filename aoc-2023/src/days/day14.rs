@@ -144,10 +144,15 @@ pub fn part_2(input: String) {
 
     println!("mod {} {}", count, set.len());
 
-    let rem = (1000000000 - 1 - set.get(&dish).unwrap()) % (count - set.get(&dish).unwrap())
-        + set.get(&dish).unwrap();
+    let rem = (1000000000 - count - 1) % (count - (set.get(&dish).unwrap()));
 
-    let dish = map.get(&rem).unwrap().clone();
+    for _ in 0..rem {
+        move_up(&mut dish);
+        move_left(&mut dish);
+        move_down(&mut dish);
+        move_right(&mut dish);
+    }
+
     let ans: usize = dish.iter().enumerate().fold(0, |acc, (i, d)| {
         let os = d.iter().filter(|&&x| x == 'O').count();
 
