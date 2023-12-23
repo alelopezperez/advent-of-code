@@ -82,264 +82,104 @@ fn proc(hash_map: &HashMap<String, Vec<String>>, parts: Vec<Vec<usize>>, start: 
     println!("{total}");
 }
 
-fn rec(
+fn all_combo(
     hash_map: &HashMap<String, Vec<String>>,
-    start: String,
-    rules: &[String],
-    combinations: (
+    curr: &str,
+    mut combo: (
         RangeInclusive<usize>,
         RangeInclusive<usize>,
         RangeInclusive<usize>,
         RangeInclusive<usize>,
     ),
+    approved_combos: &mut Vec<(
+        RangeInclusive<usize>,
+        RangeInclusive<usize>,
+        RangeInclusive<usize>,
+        RangeInclusive<usize>,
+    )>,
 ) {
-    let curr = start.clone();
-
     if curr == "A" {
+        // println!("ans {:?}", combo);
+        approved_combos.push(combo);
         return;
     }
     if curr == "R" {
         return;
     }
+    let rules = hash_map.get(curr).unwrap();
+    for (i, rule) in rules.iter().enumerate() {
+        if i == rules.len() - 1 {
+            // println!("LAST {} len {}", rule, rules.len());
+            all_combo(hash_map, rule, combo.clone(), approved_combos);
+        } else {
+            let (evaluation, goto) = rule.split_once(':').unwrap();
+            let xmas = &evaluation[0..1];
+            let comparison = &evaluation[1..2];
+            let number = &evaluation[2..].parse::<usize>().unwrap();
 
-    if rules.len() == 1 {
-        rec(
-            hash_map,
-            rules[0].to_string(),
-            &hash_map.get(&rules[0]).unwrap_or(&vec![])[..],
-            combinations.clone(),
-        );
+            // println!("'{xmas}'-'{comparison}'-'{number}'");
+            match comparison {
+                "<" => match xmas {
+                    "x" => {
+                        let mut new_combo = combo.clone();
+                        new_combo.0 = *new_combo.0.start()..=(number - 1);
+                        all_combo(hash_map, goto, new_combo, approved_combos);
+                        combo.0 = *number..=*combo.0.end();
+                    }
+                    "m" => {
+                        let mut new_combo = combo.clone();
+                        new_combo.1 = *new_combo.1.start()..=(number - 1);
+                        all_combo(hash_map, goto, new_combo, approved_combos);
+                        combo.1 = *number..=*combo.1.end();
+                    }
+                    "a" => {
+                        let mut new_combo = combo.clone();
+                        new_combo.2 = *new_combo.2.start()..=(number - 1);
+                        all_combo(hash_map, goto, new_combo, approved_combos);
+                        combo.2 = *number..=*combo.2.end();
+                    }
+                    "s" => {
+                        let mut new_combo = combo.clone();
+                        new_combo.3 = *new_combo.3.start()..=(number - 1);
+                        all_combo(hash_map, goto, new_combo, approved_combos);
+                        combo.3 = *number..=*combo.3.end();
+                    }
+                    _ => panic!("{xmas}"),
+                },
+                ">" => match xmas {
+                    "x" => {
+                        let mut new_combo = combo.clone();
+                        new_combo.0 = (number + 1)..=*new_combo.0.end();
+                        all_combo(hash_map, goto, new_combo, approved_combos);
+                        combo.0 = *combo.0.start()..=*number;
+                    }
+                    "m" => {
+                        let mut new_combo = combo.clone();
+                        new_combo.1 = (number + 1)..=*new_combo.1.end();
+                        all_combo(hash_map, goto, new_combo, approved_combos);
+                        combo.1 = *combo.1.start()..=*number;
+                    }
+                    "a" => {
+                        let mut new_combo = combo.clone();
+                        new_combo.2 = (number + 1)..=*new_combo.2.end();
+                        all_combo(hash_map, goto, new_combo, approved_combos);
+                        combo.2 = *combo.2.start()..=*number;
+                    }
+                    "s" => {
+                        let mut new_combo = combo.clone();
+                        new_combo.3 = (number + 1)..=*new_combo.3.end();
+                        all_combo(hash_map, goto, new_combo, approved_combos);
+                        combo.3 = *combo.3.start()..=*number;
+                    }
+                    _ => panic!("{xmas}"),
+                },
+                _ => panic!("{comparison}"),
+            }
+            // println!("{:?}", combo);
+        }
     }
-    if rules.len() == 0 {
-        println!("what");
-        return;
-    }
-
-    let check = rules[0].clone();
-    println!("{curr} {:?} {}", check, rules.len());
-
-    let (ev, goto) = check.split_once(':').unwrap();
-    let ev: [&str; 2] = ev
-        .split_inclusive('<')
-        .collect::<Vec<_>>()
-        .try_into()
-        .unwrap_or_else(|x| {
-            ev.split_inclusive('>')
-                .collect::<Vec<_>>()
-                .try_into()
-                .unwrap()
-        });
-    let letter = ev[0].get(0..1).unwrap();
-    let comp = ev[0].get(1..2).unwrap();
-    let amm = ev[1].parse::<usize>().unwrap();
-
-    println!("{:?}", ev);
-    match comp {
-        "<" => match letter {
-            "x" => {
-                println!("{goto}");
-                rec(
-                    hash_map,
-                    goto.to_string(),
-                    &hash_map.get(goto).unwrap_or(&vec![])[..],
-                    (
-                        *combinations.0.start()..=(amm - 1),
-                        combinations.1.clone(),
-                        combinations.2.clone(),
-                        combinations.3.clone(),
-                    ),
-                );
-                rec(
-                    hash_map,
-                    start.to_string(),
-                    &rules[1..],
-                    (
-                        combinations.0.clone(),
-                        combinations.1.clone(),
-                        combinations.2.clone(),
-                        combinations.3.clone(),
-                    ),
-                );
-            }
-            "m" => {
-                rec(
-                    hash_map,
-                    goto.to_string(),
-                    &hash_map.get(goto).unwrap_or(&vec![])[..],
-                    (
-                        combinations.0.clone(),
-                        *combinations.1.start()..=(amm - 1),
-                        combinations.2.clone(),
-                        combinations.3.clone(),
-                    ),
-                );
-                rec(
-                    hash_map,
-                    start.to_string(),
-                    &rules[1..],
-                    (
-                        combinations.0.clone(),
-                        combinations.1.clone(),
-                        combinations.2.clone(),
-                        combinations.3.clone(),
-                    ),
-                );
-            }
-            "a" => {
-                rec(
-                    hash_map,
-                    goto.to_string(),
-                    &hash_map.get(goto).unwrap_or(&vec![])[..],
-                    (
-                        combinations.0.clone(),
-                        combinations.1.clone(),
-                        *combinations.2.start()..=(amm - 1),
-                        combinations.3.clone(),
-                    ),
-                );
-                rec(
-                    hash_map,
-                    start.to_string(),
-                    &rules[1..],
-                    (
-                        combinations.0.clone(),
-                        combinations.1.clone(),
-                        combinations.2.clone(),
-                        combinations.3.clone(),
-                    ),
-                );
-            }
-            "s" => {
-                rec(
-                    hash_map,
-                    goto.to_string(),
-                    &hash_map.get(goto).unwrap_or(&vec![])[..],
-                    (
-                        combinations.0.clone(),
-                        combinations.1.clone(),
-                        combinations.2.clone(),
-                        *combinations.3.start()..=(amm - 1),
-                    ),
-                );
-                rec(
-                    hash_map,
-                    start.to_string(),
-                    &rules[1..],
-                    (
-                        combinations.0.clone(),
-                        combinations.1.clone(),
-                        combinations.2.clone(),
-                        combinations.3.clone(),
-                    ),
-                );
-            }
-            _ => {}
-        },
-        ">" => match letter {
-            "x" => {
-                rec(
-                    hash_map,
-                    goto.to_string(),
-                    &hash_map.get(goto).unwrap_or(&vec![])[..],
-                    (
-                        (amm + 1)..=*combinations.0.start(),
-                        combinations.1.clone(),
-                        combinations.2.clone(),
-                        combinations.3.clone(),
-                    ),
-                );
-                rec(
-                    hash_map,
-                    start.to_string(),
-                    &rules[1..],
-                    (
-                        combinations.0.clone(),
-                        combinations.1.clone(),
-                        combinations.2.clone(),
-                        combinations.3.clone(),
-                    ),
-                );
-            }
-            "m" => {
-                rec(
-                    hash_map,
-                    goto.to_string(),
-                    &hash_map.get(goto).unwrap_or(&vec![])[..],
-                    (
-                        combinations.0.clone(),
-                        (amm + 1)..=*combinations.1.start(),
-                        combinations.2.clone(),
-                        combinations.3.clone(),
-                    ),
-                );
-                rec(
-                    hash_map,
-                    start.to_string(),
-                    &rules[1..],
-                    (
-                        combinations.0.clone(),
-                        combinations.1.clone(),
-                        combinations.2.clone(),
-                        combinations.3.clone(),
-                    ),
-                );
-            }
-            "a" => {
-                rec(
-                    hash_map,
-                    goto.to_string(),
-                    &hash_map.get(goto).unwrap_or(&vec![])[..],
-                    (
-                        combinations.0.clone(),
-                        combinations.1.clone(),
-                        (amm + 1)..=*combinations.1.start(),
-                        combinations.3.clone(),
-                    ),
-                );
-                rec(
-                    hash_map,
-                    start.to_string(),
-                    &rules[1..],
-                    (
-                        combinations.0.clone(),
-                        combinations.1.clone(),
-                        combinations.2.clone(),
-                        combinations.3.clone(),
-                    ),
-                );
-            }
-            "s" => {
-                rec(
-                    hash_map,
-                    goto.to_string(),
-                    &hash_map.get(goto).unwrap_or(&vec![])[..],
-                    (
-                        combinations.0.clone(),
-                        combinations.1.clone(),
-                        combinations.2.clone(),
-                        (amm + 1)..=*combinations.3.start(),
-                    ),
-                );
-                rec(
-                    hash_map,
-                    start.to_string(),
-                    &rules[1..],
-                    (
-                        combinations.0.clone(),
-                        combinations.1.clone(),
-                        combinations.2.clone(),
-                        combinations.3.clone(),
-                    ),
-                );
-            }
-            _ => {}
-        },
-
-        _ => panic!("No"),
-    }
-
-    // println!("{letter} {comp} {amm} {}", goto);
 }
+
 pub fn part_1(input: &str) {
     let mut hash_map = HashMap::new();
     let parts = parse_1(input, &mut hash_map);
@@ -349,11 +189,24 @@ pub fn part_1(input: &str) {
 pub fn part_2(input: &str) {
     let mut hash_map = HashMap::new();
     let _parts = parse_1(input, &mut hash_map);
-
-    rec(
+    let mut combos = Vec::new();
+    all_combo(
         &hash_map,
-        "in".to_string(),
-        hash_map.get("in").unwrap(),
-        (0..=4000, 0..=4000, 0..=4000, 0..=4000),
+        "in",
+        (1..=4000, 1..=4000, 1..=4000, 1..=4000),
+        &mut combos,
     );
+
+    println!("{}", combos.len());
+
+    let ans = combos
+        .iter()
+        .map(|combo| {
+            combo.0.clone().count()
+                * combo.1.clone().count()
+                * combo.2.clone().count()
+                * combo.3.clone().count()
+        })
+        .sum::<usize>();
+    println!("{ans}");
 }
