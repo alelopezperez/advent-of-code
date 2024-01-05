@@ -14,6 +14,7 @@ use days::day18;
 use days::day19;
 use days::day2;
 use days::day20;
+use days::day21;
 use days::day3;
 use days::day4;
 use days::day5;
@@ -104,9 +105,13 @@ fn main() {
     // day19::part_1(input);
     // day19::part_2(input);
 
-    let input = include_str!("../day20.txt");
-    day20::part_1(input);
-    day20::part_2(input);
+    // let input = include_str!("../day20.txt");
+    // day20::part_1(input);
+    // day20::part_2(input);
+
+    let input = include_str!("../day21.txt");
+    day21::part_1(input);
+    day21::part_2(input);
 }
 
 #[tailcall] // <- This is great!!!! it loops indefently instead of overflowing
